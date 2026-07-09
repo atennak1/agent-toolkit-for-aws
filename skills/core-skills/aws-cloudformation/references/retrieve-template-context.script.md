@@ -80,8 +80,8 @@ Hardcoded resource identifiers (ARNs, physical IDs, account numbers, VPC IDs) in
 
 Constraints:
 - You MUST scan the template for any `Fn::ImportValue` or `!ImportValue` references
-- For each imported value, You MUST identify the producing stack by calling `aws cloudformation list-exports --region <region>` and matching the export name
-- For each producing stack that has significant context (i.e., the imported resource is central to the current stack's design), You SHOULD retrieve its Description and the relevant resource's `Metadata.Context` using the same procedure (Steps 2-4)
+- For each imported value, resolve the producing template LOCALLY FIRST: search the workspace/repo for a sibling template whose `Outputs` declare a matching `Export.Name`. Only if no local match is found (and you have AWS access) You MUST fall back to `aws cloudformation list-exports --region <region>` to identify the producing stack by export name.
+- For each producing template that has significant context (i.e., the imported resource is central to the current template's design), You SHOULD recover its Description and the relevant resource's context using the same procedure (Steps 2-4) — reading the producing template from the workspace when it is present, and only calling the service when it is not
 - You MUST NOT recursively follow more than one level of cross-stack references — report them but do not chase transitive dependencies
 - You MUST scan for hardcoded ARNs, resource IDs (e.g., `vpc-*`, `sg-*`, `subnet-*`, `ami-*`), and account numbers in resource properties — these indicate dependencies on resources managed outside this stack
 - For hardcoded identifiers, You MUST flag them as **unmanaged dependencies** and warn that deleting or modifying related resources could break external systems that depend on them
