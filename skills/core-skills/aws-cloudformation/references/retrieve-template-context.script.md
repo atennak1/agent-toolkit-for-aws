@@ -15,7 +15,7 @@ Use this SOP BEFORE modifying an existing template — whether you are editing a
 
 ## Steps
 
-**Template source — workspace first.** If the template is already in the user's workspace (a file they provided or opened, a path named in the request, or a file in the working directory), read it directly from disk and treat it as the template source. Make the `describe-stacks` and `get-template` service calls in Steps 2 and 3 ONLY when the template is not available locally, for example when you have just a stack name or ARN. Reading a local template needs no AWS credentials. When you specifically need the DEPLOYED state rather than the local copy, to compare against local edits or detect drift, use the service calls plus the service-derived context in Step 4a.
+**Template source — workspace first.** If the template is already in the user's workspace (a file they provided or opened, a path named in the request, or a file in the working directory), read it directly from disk and treat it as the template source. Make the `get-template` service call in Step 2 ONLY when the template is not available locally, for example when you have just a stack name or ARN. Reading a local template needs no AWS credentials. When you specifically need the DEPLOYED state rather than the local copy, to compare against local edits or detect drift, use the service calls plus the service-derived context in Step 4a.
 
 ### 1. Verify Dependencies (only when service calls are needed)
 Constraints:
@@ -23,22 +23,16 @@ Constraints:
 - When the template is not local and you must call the service, You MUST check for `call_aws` tool or AWS CLI availability (same as pre-deploy-validation SOP)
 - You MUST verify credentials are valid for the target account/region
 
-### 2. Retrieve Stack Description (service call — only if the template is not in the workspace)
+### 2. Obtain the Template and Read the Description (service call only if not in the workspace)
 Constraints:
-- Perform this step ONLY when you could not load the template locally. When you have a workspace copy, read the stack purpose from its `Description` field directly and skip this call.
-- You MUST call `aws cloudformation describe-stacks --stack-name <stack_name> --region <region>`
-- You MUST extract the `Description` field from the response
-- If Description is empty or missing, You MUST note this as "No stack-level context available" and continue to resource inspection
-- You MUST present the Description to the user as the high-level intent summary
+- Obtain the template body: read it from the workspace if present; otherwise, and only if you have AWS access, call `aws cloudformation get-template --stack-name <stack_name> --region <region> --template-stage Original`.
+- Extract the `Description` from the template body and present it as the high-level intent summary. If Description is empty or missing, note "No stack-level context available" and continue to resource inspection.
+- A separate `describe-stacks` call is NOT needed for context — the `Description` lives in the template body. Call `aws cloudformation describe-stacks` only if you specifically need to confirm a deployed stack's existence or current status; it is not required for reading context.
 
-> **Note:** Description is also available inside the template body returned by `GetTemplate` (Step 3). This call is kept because it confirms the stack exists, returns its current status, and provides the Description without needing to parse the template.
-
-### 3. Retrieve the Template (service call — only if the template is not in the workspace)
+### 3. Read Template-Level Context
 Constraints:
-- Perform this step ONLY when the template is not already in the workspace. If you loaded the template from disk, skip the `get-template` call and parse the local file instead.
-- When the template is not local, You MUST call `aws cloudformation get-template --stack-name <stack_name> --region <region> --template-stage Original`
-- You MUST parse the template body (from the workspace file or the `get-template` response)
-- Stack purpose comes from the native template `Description` (retrieved in Step 2), never from a template-level `Metadata.Context` block.
+- Work from the template body obtained in Step 2 (no additional service call).
+- Stack purpose comes from the native template `Description` (Step 2), never from a template-level `Metadata.Context` block.
 - If a template-level `Metadata.Context` block is present, extract and present its cross-cutting fields: `arch` (system shape), `must` (cross-cutting constraints), `ref` (pointers to external context files), `own` (owner/contact). Templates state broadly-applicable context here ONCE (DRY) instead of repeating it per resource.
 - The template-level block is optional, so its absence is normal, not an error. It never carries `v` or `sys`; if an older template still has those, ignore them (use `Description` for purpose) and surface anything else readable.
 
