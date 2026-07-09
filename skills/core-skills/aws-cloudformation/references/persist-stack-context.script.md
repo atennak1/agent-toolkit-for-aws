@@ -7,6 +7,7 @@ Procedure for embedding architectural intent and design rationale into CloudForm
 Uses the `Metadata.Context` schema:
 
 - **Template Description** (1,024 bytes max): One-sentence summary of the stack's purpose and key design decision — the native CloudFormation Description field captures stack purpose.
+- **Template-level Metadata.Context** (optional): Cross-cutting context that applies broadly, stated ONCE (DRY) rather than repeated per resource — `arch` (system shape), `must` (cross-cutting constraints, array), `ref` (pointers to external context files, template level only), `own` (owner/contact). This block MUST NOT include `v` (versioning is global/implicit) or `sys` (stack purpose lives in the native Description).
 - **Resource-level Metadata.Context**: Per-resource rationale — `why` (purpose + notable choices + rejected alternatives), `must` (hard constraints/invariants, array), `mutable` (resource-level DEFAULT change-safety, one token: `must-never-change|change-with-constraints|review-required|free-to-tune`), `mutability` (OPTIONAL sparse override map — keys = CFN property names, only properties that DEVIATE from the `mutable` default, same enum), `trust`, `ops`, `gaps`, `deps`.
 
 **Decision rule:** Will violating it break something? → `must`. Otherwise → `why`. There is no separate decisions/constraints split.
@@ -34,9 +35,13 @@ Constraints:
 - Format: `<what it does> — <why it's designed this way>`
 - Example: `Real-time order processing pipeline — uses SQS FIFO over EventBridge for strict ordering guarantee per customer-id`
 
-### 2. Ensure Stack Purpose in Description
+### 2. Stack Purpose and Cross-Cutting Context
 
-You MUST ensure the top-level `Description` field captures the stack purpose (what it is + why). Do NOT create a template-level `Metadata.Context` block — stack purpose lives in the native CloudFormation Description (CDK: Stack description prop). If Description already exists and is correct, do not overwrite it.
+Constraints:
+
+- You MUST ensure the top-level `Description` field captures the stack purpose (what it is + why). Stack purpose lives in the native CloudFormation Description (CDK: Stack description prop), NOT in a template-level `Metadata.Context` block. If Description already exists and is correct, do not overwrite it.
+- You MAY add a template-level `Metadata.Context` block for cross-cutting context that applies broadly and would otherwise be repeated on many resources: `arch` (system shape), `must` (cross-cutting constraints, e.g. "all data encrypted w/ security-team CMK"), `ref` (pointers to external context files), `own` (owner/contact). State such context ONCE here (DRY) rather than duplicating it per resource.
+- The template-level block MUST NOT include `v` or `sys` — versioning is global/implicit and stack purpose belongs in the Description. If the block already exists, UPDATE it (preserve valid entries, no duplicate array items) rather than replacing it wholesale.
 
 ### 3. Write Resource-Level Metadata Context
 
