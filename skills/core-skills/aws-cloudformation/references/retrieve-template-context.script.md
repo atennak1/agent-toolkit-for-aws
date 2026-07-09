@@ -64,7 +64,7 @@ Constraints:
   - `DetectStackDrift` / `DescribeStackDriftDetectionStatus` — current drift status
   - CloudTrail — actor enrichment (who initiated the API call)
   - Change sets / template-version diffs — property-level changes between versions
-- You SHOULD retrieve service-derived context when: troubleshooting failures, assessing risk of a change, understanding recent modifications, or auditing drift
+- You SHOULD retrieve service-derived context when assessing the risk of a change, understanding recent modifications, or auditing drift. For diagnosing a FAILED deployment, do not reproduce that analysis here — use the [troubleshoot-deployment SOP](troubleshoot-deployment.script.md), which owns the deterministic failed-events + CloudTrail root-cause workflow.
 
 ### 5. Follow Cross-Stack References
 
