@@ -68,19 +68,22 @@ Constraints:
 
 ### 5. Follow Cross-Stack References
 
-When a template uses `Fn::ImportValue`, it depends on resources from other stacks. Understanding those upstream stacks provides critical context about shared infrastructure constraints.
+When a template uses `Fn::ImportValue` or `Fn::GetStackOutput`, it depends on resources from other stacks. Understanding those upstream stacks provides critical context about shared infrastructure constraints.
+
+`Fn::ImportValue` resolves an explicitly exported output and is a STRONG reference within the same account and Region. `Fn::GetStackOutput` (short form `!GetStackOutput`) reads another stack's output directly by `StackName`/`OutputName` — it needs no `Export`, works cross-account and cross-Region (via optional `Region`/`RoleArn`), and is a WEAK reference resolved at deploy time. Because a weak reference does not block deletion of the producer or guarantee referential integrity, it is easy to miss and important to surface: the consuming stack can silently break if the producer's output changes or the producer is deleted.
 
 Hardcoded resource identifiers (ARNs, physical IDs, account numbers, VPC IDs) indicate dependencies on **unmanaged resources** — infrastructure that exists outside CloudFormation or in a partially IaC-managed environment. These are invisible dependencies that won't show up as `Fn::ImportValue`.
 
 Constraints:
-- You MUST scan the template for any `Fn::ImportValue` or `!ImportValue` references
+- You MUST scan the template for any `Fn::ImportValue`/`!ImportValue` AND `Fn::GetStackOutput`/`!GetStackOutput` references
 - For each imported value, resolve the producing template LOCALLY FIRST: search the workspace/repo for a sibling template whose `Outputs` declare a matching `Export.Name`. Only if no local match is found (and you have AWS access) You MUST fall back to `aws cloudformation list-exports --region <region>` to identify the producing stack by export name.
+- For each `Fn::GetStackOutput` reference, the producing stack is named directly by its `StackName` and `OutputName` (no `Export` needed). Resolve LOCALLY FIRST: search the workspace/repo for a template whose stack is `StackName` and whose `Outputs` define `OutputName`. If the reference sets `Region` or `RoleArn`, the producer is in another Region or account and is unlikely to be in the local workspace — note that, and only look it up via the service (`aws cloudformation describe-stacks --stack-name <StackName> --region <Region>`, assuming the given role) if you have access.
 - For each producing template that has significant context (i.e., the imported resource is central to the current template's design), You SHOULD recover its Description and the relevant resource's context using the same procedure (Steps 2-4) — reading the producing template from the workspace when it is present, and only calling the service when it is not
 - You MUST NOT recursively follow more than one level of cross-stack references — report them but do not chase transitive dependencies
 - You MUST scan for hardcoded ARNs, resource IDs (e.g., `vpc-*`, `sg-*`, `subnet-*`, `ami-*`), and account numbers in resource properties — these indicate dependencies on resources managed outside this stack
 - For hardcoded identifiers, You MUST flag them as **unmanaged dependencies** and warn that deleting or modifying related resources could break external systems that depend on them
-- You MUST include cross-stack context in the summary under a **Dependencies** heading with two sub-sections: **Managed** (Fn::ImportValue) and **Unmanaged** (hardcoded identifiers)
-- If no `Fn::ImportValue` references or hardcoded identifiers exist, You SHOULD skip this step
+- You MUST include cross-stack context in the summary under a **Dependencies** heading with two sub-sections: **Managed** (`Fn::ImportValue` exports and `Fn::GetStackOutput` references — mark `Fn::GetStackOutput` as a weak, possibly cross-account or cross-Region dependency) and **Unmanaged** (hardcoded identifiers)
+- If no `Fn::ImportValue` or `Fn::GetStackOutput` references or hardcoded identifiers exist, You SHOULD skip this step
 
 ### 6. Synthesize Context Summary
 Constraints:
