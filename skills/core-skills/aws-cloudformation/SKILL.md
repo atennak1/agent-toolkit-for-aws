@@ -19,27 +19,30 @@ Domain expertise for the full CloudFormation lifecycle: authoring templates, val
 
 **Then** follow the [authoring best-practices SOP](references/author-cloudformation-best-practices.script.md) as a review checklist. When unsure about property names or types, use the [resource property lookup SOP](references/lookup-resource-properties.script.md) to verify against authoritative documentation rather than guessing.
 
-**Context persistence (always applies).** Whenever you add or modify a resource, attach a `Metadata.Context` block so the design intent survives across sessions, teams, and tools. At minimum, record:
-
-- **`why`** — purpose, notable choices, and rejected alternatives.
-- **`must`** — hard constraints or invariants that would break something if violated (array).
-- **`mutable`** — the resource-level DEFAULT change-safety level: one of `must-never-change`, `change-with-constraints`, `review-required`, or `free-to-tune`. Set it on stateful or coupled resources, and add a sparse `mutability` override map only for the individual properties that differ from that default.
-
-Write values in caveman shorthand (telegraphic phrasing and symbols like `>=`, `->`, `x`), and never restate the resource Type, logical id, or property values. Decision rule: if violating it would break something it is a `must`, otherwise it is a `why`.
-
-When modifying an existing stack, first retrieve its embedded `Metadata.Context`, respect any `must` constraints, and check `mutable` before changing a property (honor `must-never-change`, `change-with-constraints`, and `review-required`). Persist is idempotent: re-running it updates or merges existing Context rather than duplicating or overwriting.
-
-The canonical field set and tier rules are defined in `doc/metadata-context-schema.md`, which this skill's SOPs implement. See the [persist-stack-context SOP](references/persist-stack-context.script.md) and [retrieve-stack-context SOP](references/retrieve-stack-context.script.md) for detail.
-
-When the template you are modifying is already large, also check its body size against the CloudFormation limit before adding resources — see [Template Size Limits](#template-size-limits).
-
 Key defaults to apply unless there is a clear reason not to:
 
 - S3 buckets: `PublicAccessBlockConfiguration` (all four true), `BucketEncryption`, `VersioningConfiguration`
 - Stateful resources: `DeletionPolicy: Retain` and `UpdateReplacePolicy: Retain`
 - Avoid hardcoded physical resource names — use `!Sub "${AWS::StackName}-..."` for uniqueness
 - Never put secrets in plain `String` parameters
-- **Always embed context**: After authoring, run the [persist-stack-context SOP](references/persist-stack-context.script.md) to record intent in Description and Metadata
+
+**Context persistence (always applies).** Whenever you add or modify a resource, record the design intent — purpose, hard constraints, and change-safety — so it survives across sessions, teams, and tools.
+
+`Metadata.Context` is the default mechanism, and the right choice when the template has no decent existing context (all JSON templates, and YAML without meaningful comments). Record at minimum:
+
+- **`why`** — purpose, notable choices, and rejected alternatives.
+- **`must`** — hard constraints or invariants that would break something if violated (array).
+- **`mutable`** — the resource-level DEFAULT change-safety level: one of `must-never-change`, `change-with-constraints`, `review-required`, or `free-to-tune`. Set it on stateful or coupled resources, and add a sparse `mutability` override map only for the individual properties that differ from that default.
+
+Write `Metadata.Context` values in caveman shorthand (telegraphic phrasing and symbols like `>=`, `->`, `x`), and never restate the resource Type, logical id, or property values. Decision rule: if violating it would break something it is a `must`, otherwise it is a `why`.
+
+**Follow an existing comment convention when one exists.** If a YAML template already documents intent well through natural inline comments, extend that comment style rather than introducing `Metadata.Context` blocks — keep the author's voice, do not mix two documentation systems on one template, and still capture the hard constraints in those comments. Reserve `Metadata.Context` for templates that lack decent natural context.
+
+When modifying an existing stack, first retrieve its embedded context, respect any `must` constraints, and check `mutable` before changing a property (honor `must-never-change`, `change-with-constraints`, and `review-required`). Persist is idempotent: re-running it updates or merges existing context rather than duplicating or overwriting.
+
+When the template you are modifying is already large, also check its body size against the CloudFormation limit before adding resources — see [Template Size Limits](#template-size-limits).
+
+**Always embed context**: After authoring, run the [persist-stack-context SOP](references/persist-stack-context.script.md) to record intent in Description and Metadata
 
 ### Validate a template before deployment
 

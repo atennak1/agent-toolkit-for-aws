@@ -16,6 +16,8 @@ Uses the `Metadata.Context` schema:
 
 **Tiers:** Always emit T1 (`why` + `must` on significant resources; Description for stack purpose). Add T2 (`mutable`, `arch` in `why`) if budget allows. Add T3 (`trust`, `ops`, `gaps`, `deps`) when warranted. If the template nears 1 MB, shed in order: `trust` → `ops` → `gaps` → `deps` → `mutable` on non-critical → trim `why` to significant resources → last resort externalize via `ref`. NEVER drop `must` on coupled/security/stateful resources.
 
+**Match existing natural context.** `Metadata.Context` is the default mechanism and the right choice when the template has no decent existing context — this includes all JSON templates (JSON has no comments) and YAML templates without meaningful comments. If a YAML template already documents intent well through natural inline comments, follow that existing convention instead of injecting `Metadata.Context`: extend the author's comments in their own style and voice, and capture hard constraints (`must`) as comments too. Do NOT mix both systems on one template — match what is already there. When existing comments are sparse or absent, use `Metadata.Context`.
+
 ## Parameters
 
 | Name | Required | Description |
@@ -47,6 +49,7 @@ Constraints:
 
 Constraints:
 
+- FIRST apply the **Match existing natural context** rule above: if this template is YAML and already documents intent well through natural inline comments, record the new or changed resource's intent as comments in that same style and SKIP the `Metadata.Context` block for it. Use the `Metadata.Context` steps below when the template is JSON, or when its comments are sparse or absent.
 - For EACH significant resource (stateful, security, coupled, or non-obvious), you MUST ENSURE a `Metadata.Context` key exists. If one already exists, UPDATE it — preserve existing `must` constraints and `mutable` flags that remain valid; do not duplicate array entries. Only ADD new fields or CORRECT stale ones.
 - The `Context` key MUST contain at minimum (T1):
   - `why`: Purpose + notable config choices + rejected alternatives. The SINGLE explanatory field. Non-binding. Never restate Type, logical id, property values, or Description.
@@ -70,7 +73,7 @@ Constraints:
 
 Constraints:
 
-- You MUST verify that someone reading ONLY the Description + Metadata.Context fields (without the original conversation) could understand:
+- You MUST verify that someone reading ONLY the Description plus the template's embedded context (Metadata.Context blocks or the inline comments, whichever this template uses), without the original conversation, could understand:
   1. What problem the stack solves (Description)
   2. Why each significant resource exists and its key choices (`why`)
   3. What invariants must hold to keep things working (`must`)
