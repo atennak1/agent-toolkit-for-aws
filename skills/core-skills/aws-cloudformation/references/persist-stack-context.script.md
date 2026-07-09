@@ -7,7 +7,7 @@ Procedure for embedding architectural intent and design rationale into CloudForm
 Uses the `Metadata.Context` schema:
 
 - **Template Description** (1,024 bytes max): One-sentence summary of the stack's purpose and key design decision — the native CloudFormation Description field captures stack purpose.
-- **Resource-level Metadata.Context**: Per-resource rationale — `why` (purpose + notable choices + rejected alternatives), `must` (hard constraints/invariants, array), `mutable` (per-property change-safety: `lock|careful|review|free`), `trust`, `ops`, `gaps`, `deps`.
+- **Resource-level Metadata.Context**: Per-resource rationale — `why` (purpose + notable choices + rejected alternatives), `must` (hard constraints/invariants, array), `mutable` (resource-level DEFAULT change-safety, one token: `must-never-change|change-with-constraints|review-required|free-to-tune`), `mutability` (OPTIONAL sparse override map — keys = CFN property names, only properties that DEVIATE from the `mutable` default, same enum), `trust`, `ops`, `gaps`, `deps`.
 
 **Decision rule:** Will violating it break something? → `must`. Otherwise → `why`. There is no separate decisions/constraints split.
 
@@ -47,7 +47,8 @@ Constraints:
   - `why`: Purpose + notable config choices + rejected alternatives. The SINGLE explanatory field. Non-binding. Never restate Type, logical id, property values, or Description.
   - `must`: Hard constraints/invariants (array of strings). Only when a real rule exists — never invent. Decision rule: *will violating it break something? → `must`. Otherwise → `why`.*
 - You SHOULD add T2 when budget allows:
-  - `mutable`: Per-property change-safety map. Closed vocab: `lock` (must-never-change) | `careful` (change-with-constraints) | `review` (review-required) | `free` (free-to-tune). `mutable` is the flag; `must` states the rule behind a `careful`/`lock` — do not restate in both.
+  - `mutable`: Resource-level DEFAULT change-safety. One token per resource: `must-never-change` | `change-with-constraints` | `review-required` | `free-to-tune`.
+  - `mutability`: OPTIONAL sparse override map. Keys = CFN property names that DEVIATE from the `mutable` default. Values use the same enum. Omit properties that match the default.
 - You MAY add T3 when warranted:
   - `trust`: `{ src: comment|authored|commit|infer, conf: high|medium|low, cite?: "file:line", note?: <reason for low confidence> }`
   - `ops`: Operational hint before changing (what to check pre-modification)
@@ -90,10 +91,10 @@ Resources:
         must:
           - VisTimeout >= 5x fn timeout, else dup on retry
           - DLQ maxReceive = 3; don't lose msgs
-        mutable:
-          VisibilityTimeout: careful
-          QueueName: lock
-        trust: { src: authored, conf: hi }
+        mutable: change-with-constraints
+        mutability:
+          QueueName: must-never-change
+        trust: { src: authored, conf: high }
         ops: check ApproxAgeOfOldestMsg before cutting VisTimeout
     Properties:
       FifoQueue: true
@@ -111,9 +112,9 @@ Resources:
         why: processes orders from queue; Lambda over ECS for cost at bursty loads; py3.12 for cold start; 512MB from load test (below -> p99 > 2s SLA)
         must:
           - timeout <= VisTimeout/5
-        mutable:
-          MemorySize: review
-          Timeout: careful
+        mutable: change-with-constraints
+        mutability:
+          MemorySize: review-required
     Properties:
       Runtime: python3.12
       MemorySize: 512

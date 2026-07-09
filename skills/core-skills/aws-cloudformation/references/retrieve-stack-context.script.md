@@ -48,9 +48,9 @@ Constraints:
 - For each resource WITH a Context key, You MUST extract and present:
   - `why` — purpose, notable choices, rejected alternatives
   - `must` — hard constraints/invariants (array) — these are SAFETY-CRITICAL; flag them prominently
-  - `mutable` — per-property change-safety flags (`lock|careful|review|free`) — You MUST check these before modifying any property
+  - `mutable` — resource-level DEFAULT change-safety (one token: `must-never-change|change-with-constraints|review-required|free-to-tune`); `mutability` — OPTIONAL sparse per-property override map (keys = CFN property names that deviate from the default, same enum) — You MUST check these before modifying any property
   - `trust`, `ops`, `gaps`, `deps` — present if available (T3 fields)
-- You MUST honor `mutable` flags: `lock` = must-never-change; `careful` = change only if the associated `must` rule is preserved; `review` = needs review; `free` = safe to tune
+- You MUST honor `mutable`/`mutability` flags: `must-never-change` = never alter; `change-with-constraints` = change only if the associated `must` rule is preserved; `review-required` = needs review; `free-to-tune` = safe to tune
 - For resources WITHOUT a Context key, You MUST note them as "No context recorded"
 - If a `Metadata.Context` block exists but does not conform to v1 (unknown fields, wrong types), you MUST still extract and present whatever is readable. Do NOT reject the entire block because of one malformed field. Note any structural issues in the summary as "⚠️ Non-standard Context: {issue}".
 
@@ -91,7 +91,7 @@ Constraints:
   3. **Cross-Cutting Constraints** (from template-level `must`)
   4. **Resource Rationale** (aggregated `why` from resource-level Context)
   5. **Hard Constraints** (aggregated `must` from resource-level — these are safety-critical)
-  6. **Mutability** (any `mutable` flags — highlight `lock` and `careful` properties)
+  6. **Mutability** (resource `mutable` default + any `mutability` overrides — highlight `must-never-change` and `change-with-constraints` properties)
   7. **Dependencies** (from Fn::ImportValue references + `deps` fields — producing stack, what's imported, and its context)
   8. **Resources Without Context** (list of logical IDs with no Context metadata)
 - You MUST warn the user about any resources lacking context — these are blind spots for modification
@@ -124,9 +124,10 @@ SQS buffer -> Lambda -> DynamoDB; DLQ for poison msgs
 - ProcessorFunction: timeout <= VisTimeout/5
 
 ## Mutability
-- OrderQueue.VisibilityTimeout: careful
-- OrderQueue.QueueName: lock ⚠️
-- ProcessorFunction.MemorySize: review
+- OrderQueue.mutable: change-with-constraints
+- OrderQueue.QueueName: must-never-change ⚠️
+- ProcessorFunction.mutable: change-with-constraints
+- ProcessorFunction.MemorySize: review-required
 
 ## Resources Without Context
 - OrderDLQ (no Metadata.Context)
