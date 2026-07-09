@@ -27,7 +27,20 @@ No external tools required. This SOP is purely analytical.
 
 - You MUST be able to read and parse the template as YAML or JSON
 
-### 2. Check Resource Naming
+### 2. Retrieve Existing Context
+
+**Rule:** Before modifying an existing template, you MUST understand the original design intent.
+
+**Constraints:**
+
+- If the template is for an EXISTING deployed stack, You MUST follow the [retrieve-stack-context SOP](retrieve-stack-context.script.md) to recover the embedded design rationale before making changes
+- You MUST review the `Description` field and all `Metadata.Context` entries to understand why resources are configured the way they are
+- You MUST NOT modify a resource's configuration without first checking its `Metadata.Context.must` constraints — changes that violate documented `must` entries require explicit user approval
+- You MUST check `Metadata.Context.mutable` before changing any property: honor `must-never-change` (never change), `change-with-constraints` (preserve the associated `must` rule), and `review-required` (needs review)
+- You MUST update `Metadata.Context.why` on any resource whose configuration you change, explaining the new rationale
+- If the template is brand new (not yet deployed), You SHOULD skip this step
+
+### 3. Check Resource Naming
 
 **Rule:** Avoid hardcoded physical resource names (e.g., `BucketName`, `TableName`, `FunctionName`) when they are not required, because hardcoded names prevent multiple deployments and block blue/green replacement.
 
@@ -38,7 +51,7 @@ No external tools required. This SOP is purely analytical.
 - You MUST NOT flag names that are references (`!Ref`, `!Sub` with parameters) because those are already dynamic
 - You SHOULD exempt resources where the name is functional (e.g., IAM role name referenced by an external system)
 
-### 3. Check Parameter Design
+### 4. Check Parameter Design
 
 **Rule:** Parameters MUST have sensible constraints and defaults where possible.
 
@@ -49,7 +62,7 @@ No external tools required. This SOP is purely analytical.
 - You MUST flag parameters with `NoEcho: true` that are not sensitive and flag sensitive parameters (`DbPassword`, `ApiKey`, etc.) missing `NoEcho: true`
 - You MUST recommend using CloudFormation dynamic references (`{{resolve:secretsmanager:MySecret}}` or `{{resolve:ssm-secure:MyParam}}`) for secrets rather than plain `String` parameters, because dynamic references resolve at deploy time and avoid exposing secrets in the template, console, or API responses
 
-### 4. Check Cross-Stack References
+### 5. Check Cross-Stack References
 
 **Rule:** Prefer cross-stack references via `Export`/`ImportValue` OR parameter passing. Avoid hardcoding ARNs from other stacks.
 
@@ -59,7 +72,7 @@ No external tools required. This SOP is purely analytical.
 - You MUST recommend either exporting from the producing stack and using `!ImportValue`, or passing the value as a parameter
 - You SHOULD warn that `!ImportValue` creates a tight coupling (the exporting stack cannot delete the export while it is imported)
 
-### 5. Check Security Defaults
+### 6. Check Security Defaults
 
 **Rule (critical tier):** Apply secure-by-default settings for stateful and network-facing resources.
 
@@ -76,7 +89,7 @@ No external tools required. This SOP is purely analytical.
 - For `AWS::Lambda::Function`, You SHOULD flag missing `DeadLetterConfig` for async-invoked functions (per cfn-guard `LAMBDA_DLQ_CHECK`)
 - You MUST NOT flag missing encryption when the user explicitly sets `BucketEncryption: !Ref AWS::NoValue` (indicates a deliberate decision)
 
-### 6. Check Template Structure
+### 7. Check Template Structure
 
 **Rule:** Organize the template sections in a consistent order and limit template size.
 
@@ -86,7 +99,7 @@ No external tools required. This SOP is purely analytical.
 - You MUST flag templates exceeding 51,200 bytes (the `--template-body` inline limit) and recommend using `--template-url` with S3, or splitting into nested stacks
 - You SHOULD recommend splitting templates exceeding 200 resources into nested stacks because large single stacks slow down deploy times and complicate rollback
 
-### 7. Check DeletionPolicy and UpdateReplacePolicy
+### 8. Check DeletionPolicy and UpdateReplacePolicy
 
 **Rule:** Stateful resources (databases, buckets with data, tables with data) MUST have an explicit `DeletionPolicy`.
 
@@ -96,7 +109,7 @@ No external tools required. This SOP is purely analytical.
 - You MUST recommend `DeletionPolicy: Retain` for production stateful resources and `DeletionPolicy: Snapshot` for databases where point-in-time recovery is desired
 - You SHOULD also recommend `UpdateReplacePolicy: Retain` on the same resources because replacement (not just deletion) can cause data loss
 
-### 8. Check Conditions and Intrinsic Functions
+### 9. Check Conditions and Intrinsic Functions
 
 **Rule:** Conditions must be string references to named conditions, not inline intrinsic functions.
 
@@ -105,7 +118,7 @@ No external tools required. This SOP is purely analytical.
 - You MUST flag resources with `Condition: !Not [...]` or any inline intrinsic in the `Condition` key (this is a common mistake that cfn-lint catches as E3001)
 - You MUST recommend defining a named condition in the `Conditions:` section and referencing it by name
 
-### 9. Check Outputs
+### 10. Check Outputs
 
 **Rule:** Outputs should be named consistently and exported only if intended for cross-stack use.
 
@@ -114,7 +127,7 @@ No external tools required. This SOP is purely analytical.
 - You SHOULD note exported outputs and remind the user that exports create cross-stack coupling — confirm each export has a known consumer. Single-template analysis cannot determine whether an export is consumed by another stack, so this is advisory rather than a hard failure.
 - You SHOULD recommend adding a `Description` to every output
 
-### 10. Present Findings
+### 11. Present Findings
 
 Report the checklist results.
 
@@ -125,6 +138,23 @@ Report the checklist results.
 - You MUST show line numbers where applicable
 - You SHOULD respect the `strictness` parameter and suppress findings below the selected tier
 - You SHOULD end with a summary: "X critical, Y recommended, Z strict findings"
+
+### 12. Embed Design Context
+
+**Rule:** Every template MUST carry its own rationale so future readers (human or AI) understand WHY, not just WHAT.
+
+**Constraints:**
+
+- You MUST set the top-level `Description` to a concise summary of the stack's purpose and primary design decision (max 1,024 bytes)
+- You MUST add a `Metadata.Context` attribute to each significant resource with at minimum `why` (purpose + notable choices + rejected alternatives) and `must` (hard constraints — only when real rules exist)
+- Decision rule: *will violating it break something? → `must`. Otherwise → `why`.* Do not separate decisions from constraints — a decision is either a rule (`must`) or reasoning (`why`).
+- You SHOULD add `mutable` on stateful/coupled resources to flag per-property change-safety (`must-never-change|change-with-constraints|review-required|free-to-tune`)
+- You MUST use caveman shorthand: telegraphic values, symbols (`>=`, `->`, `x`), abbreviations. Never restate Type, logical id, property values, or Description.
+- You MUST NOT put secrets, PII, or credentials in Description or Metadata
+- You MUST NOT use the `AWS::CloudFormation::Init` key for context (reserved for cfn-init)
+- You SHOULD follow the [persist-stack-context SOP](persist-stack-context.script.md) for detailed guidance on writing effective context
+- You MUST verify that the Description + Metadata.Context fields alone (without external docs) convey enough information for someone to safely modify the stack
+- If the template already has a `Metadata.Context` block (from a previous persist run or manual authoring), you MUST merge into it rather than replacing it. Preserve existing `must` constraints that remain valid.
 
 ## Examples
 
