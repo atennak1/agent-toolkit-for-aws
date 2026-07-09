@@ -64,13 +64,15 @@ Key points:
 - Cancelled resources may have their own issues that only surface on the next deployment attempt. Warn the developer that additional failures may appear after fixing the visible ones.
 - Classify the fix as **template-level** (change the template) or **environment-level** (fix IAM, quotas, resource state) — do not propose template changes for environment issues
 
-### Understand or document stack intent
+### Understand, explain, or document a template
 
-When working with an existing template, ALWAYS start by retrieving its embedded context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This recovers the original design rationale without requiring access to the original conversation or design docs.
+To answer exploratory questions about an existing template or stack — "what does this do?", "why is it built this way?", "walk me through this" — use the [retrieve-template-context SOP](references/retrieve-template-context.script.md) to read its embedded context (Description, `Metadata.Context`, inline comments, and any companion docs) and summarize its intent, architecture, and constraints. This is a read-only use; no changes are implied.
 
-When creating or modifying a template, ALWAYS embed context using the [persist-template-context SOP](references/persist-template-context.script.md). This ensures future sessions can understand WHY the stack is designed the way it is.
+When you are about to modify an existing template, start with the same retrieve step so you respect the original constraints and rationale before changing anything.
 
-Key principle: **The template is the documentation.** Description and Metadata.Context fields survive across sessions, teams, and tools — unlike chat history or external docs that get lost.
+When creating or modifying a template, embed context using the [persist-template-context SOP](references/persist-template-context.script.md). This ensures future sessions can understand WHY the stack is designed the way it is.
+
+Key principle: **The template is the documentation.** Description, `Metadata.Context`, and inline comments survive across sessions, teams, and tools — unlike chat history or external docs that get lost.
 
 ## Decision Guide
 
@@ -81,7 +83,7 @@ Key principle: **The template is the documentation.** Description and Metadata.C
 | Deploy faster during development | Deploy-with-express-mode SOP |
 | Stack failed or is stuck | Troubleshoot-deployment SOP |
 | Unsure about a resource property | Resource property lookup SOP |
-| Understand why a stack exists | Retrieve-template-context SOP |
+| Explain or understand what a template/stack does (and why) | Retrieve-template-context SOP |
 | Document design decisions in a template | Persist-template-context SOP |
 
 ### CloudFormation vs CDK
