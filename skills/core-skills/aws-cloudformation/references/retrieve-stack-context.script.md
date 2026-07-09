@@ -32,15 +32,9 @@ Constraints:
 Constraints:
 - You MUST call `aws cloudformation get-template --stack-name <stack_name> --region <region> --template-stage Original`
 - You MUST parse the returned template body
-- You MUST extract the template-level `Metadata` section if present
-- If a `Metadata.Context` key exists at the template level, You MUST extract and present:
-  - `v` — schema version
-  - `sys` — what the stack is + why it exists
-  - `arch` — high-level shape/pattern (if present)
-  - `must` — cross-cutting constraints (if present)
-  - `ref` — pointers to external context files (if present); fetch and merge referenced content when accessible
-  - `own` — owner/contact (if present)
-- Template-level context provides the "big picture" that individual resource contexts build upon
+- Stack purpose comes from the native template `Description` (retrieved in Step 2). Modern templates do NOT carry a template-level `Metadata.Context` block.
+- If a LEGACY template-level `Metadata.Context` block exists (older `v`/`sys`/`arch`/`must`/`ref`/`own` fields), extract and present whatever is readable as legacy context, but treat the `Description` as the authoritative source of stack purpose.
+- You MUST NOT expect template-level Context on modern templates — its absence is normal, not an error
 
 ### 4. Extract Resource Context
 Constraints:
@@ -86,9 +80,9 @@ Constraints:
 ### 6. Synthesize Context Summary
 Constraints:
 - You MUST present a structured summary:
-  1. **Stack Purpose** (from `sys` + Description)
-  2. **Architecture** (from `arch` if present)
-  3. **Cross-Cutting Constraints** (from template-level `must`)
+  1. **Stack Purpose** (from `Description`; fall back to legacy `sys` only if present)
+  2. **Architecture** (from resource-level context or Description; fall back to legacy `arch` only if present)
+  3. **Cross-Cutting Constraints** (only if a legacy template-level `must` is present)
   4. **Resource Rationale** (aggregated `why` from resource-level Context)
   5. **Hard Constraints** (aggregated `must` from resource-level — these are safety-critical)
   6. **Mutability** (resource `mutable` default + any `mutability` overrides — highlight `must-never-change` and `change-with-constraints` properties)
@@ -105,13 +99,13 @@ Constraints:
 ```
 Stack: order-processing-prod (us-east-1)
 
-## Stack Purpose (sys)
+## Stack Purpose (from Description)
 order-intake event pipeline; decouples API from processing
 
-## Architecture (arch)
+## Architecture
 SQS buffer -> Lambda -> DynamoDB; DLQ for poison msgs
 
-## Cross-Cutting Constraints (must)
+## Cross-Cutting Constraints (legacy template-level must)
 - all data encrypted w/ security-team CMK
 - p99 latency <= 2s
 
