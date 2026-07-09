@@ -163,4 +163,4 @@ Use `--template-stage Original` to get the template as authored (with Metadata i
 When you retrieve the template from a deployed stack (the `get-template` fallback), it returns the template as it was at the LAST deployment — not the latest source. If a resource comes back with no `Metadata.Context` even though you expected it, the context was likely added to the source template after the stack was last deployed: it exists in the repo but has not been applied yet. Read the current source template (the workspace file or git history) as the source of truth, and deploy to bring the live stack up to date if and when needed.
 
 ### Stack is in ROLLBACK_COMPLETE state
-You can still retrieve the template and metadata from failed stacks. The context is preserved even if deployment failed.
+You can still retrieve the template and its embedded context from failed stacks. The context is preserved even if deployment failed.
