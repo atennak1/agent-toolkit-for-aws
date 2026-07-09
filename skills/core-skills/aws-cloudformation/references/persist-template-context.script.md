@@ -19,7 +19,7 @@ Uses the `Metadata.Context` schema:
 **Match the existing documentation convention.** `Metadata.Context` is the default mechanism and the right choice when neither the template nor its project already has a decent context convention — this includes all JSON templates (JSON has no comments) and YAML templates without meaningful comments. Before injecting `Metadata.Context`, check what convention is already in use and follow it:
 
 - **Natural inline comments** — if a YAML template documents intent well through inline comments, extend the author's comments in their own style and voice.
-- **Companion documentation** — if the repo, package, or workspace records design context in companion docs (README, a `docs/` folder, architecture notes, ADRs), add or update the new/changed context there following that convention, and add a template-level `ref` entry pointing to the file(s) so the link is discoverable from the template.
+- **Companion documentation** — if the repo, package, or workspace records design context in companion docs (README, a `docs/` folder, architecture notes, or architecture decision records (ADRs)), add or update the new/changed context there following that convention, and add a template-level `ref` entry pointing to the file(s) so the link is discoverable from the template.
 
 Do NOT mix systems on one template — match what is already there. Whichever you use, keep safety-critical `must` constraints discoverable and never externalize the irreducible core. When there is no existing convention, use `Metadata.Context`.
 
