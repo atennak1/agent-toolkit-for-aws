@@ -33,7 +33,7 @@ No external tools required. This SOP is purely analytical.
 
 **Constraints:**
 
-- If the template is for an EXISTING deployed stack, You MUST follow the [retrieve-stack-context SOP](retrieve-stack-context.script.md) to recover the embedded design rationale before making changes
+- If the template is for an EXISTING deployed stack, You MUST follow the [retrieve-template-context SOP](retrieve-template-context.script.md) to recover the embedded design rationale before making changes
 - You MUST review the `Description` field and all `Metadata.Context` entries to understand why resources are configured the way they are
 - You MUST NOT modify a resource's configuration without first checking its `Metadata.Context.must` constraints — changes that violate documented `must` entries require explicit user approval
 - You MUST check `Metadata.Context.mutable` before changing any property: honor `must-never-change` (never change), `change-with-constraints` (preserve the associated `must` rule), and `review-required` (needs review)
@@ -152,7 +152,7 @@ Report the checklist results.
 - You MUST use caveman shorthand: telegraphic values, symbols (`>=`, `->`, `x`), abbreviations. Never restate Type, logical id, property values, or Description.
 - You MUST NOT put secrets, PII, or credentials in Description or Metadata
 - You MUST NOT use the `AWS::CloudFormation::Init` key for context (reserved for cfn-init)
-- You SHOULD follow the [persist-stack-context SOP](persist-stack-context.script.md) for detailed guidance on writing effective context
+- You SHOULD follow the [persist-template-context SOP](persist-template-context.script.md) for detailed guidance on writing effective context
 - You MUST verify that the Description + Metadata.Context fields alone (without external docs) convey enough information for someone to safely modify the stack
 - If the template already has a `Metadata.Context` block (from a previous persist run or manual authoring), you MUST merge into it rather than replacing it. Preserve existing `must` constraints that remain valid.
 

@@ -1,7 +1,7 @@
-# Retrieve Stack Context
+# Retrieve Template Context
 
 ## Overview
-Procedure for recovering architectural intent and design rationale from an existing CloudFormation stack. Reads the template `Description` and any embedded design context — recorded as `Metadata.Context` blocks, as natural inline comments (YAML), or in companion documentation in the same repo, package, or workspace (which a template-level `ref` may or may not point to) — to reconstruct WHY the stack was built the way it was, enabling informed modifications without re-discovering original design decisions. `Metadata.Context` is a structured block; comment- and doc-based context is free-form and read on its own terms.
+Procedure for recovering architectural intent and design rationale from an existing CloudFormation stack. Reads the template `Description` and any embedded design context — recorded as `Metadata.Context` blocks, as natural inline comments (YAML), or in companion documentation in the same repo, package, or workspace — to reconstruct WHY the stack was built the way it was, enabling informed modifications without re-discovering original design decisions. `Metadata.Context` is a structured block; comment- and doc-based context is free-form and read on its own terms.
 
 Use this SOP BEFORE modifying any existing stack to understand the original intent and constraints.
 
@@ -100,7 +100,7 @@ Constraints:
   8. **Resources Without Context** (logical IDs with no context in any convention — no `Metadata.Context`, no inline comments, and not covered by companion docs)
 - You MUST warn the user about any resources lacking context — these are blind spots for modification
 - You MUST prominently flag all `must` constraints — these prevent the agent from silently breaking the system
-- You SHOULD recommend running the persist-stack-context SOP to fill gaps before making changes
+- You SHOULD recommend running the persist-template-context SOP to fill gaps before making changes
 
 ## Examples
 
@@ -152,7 +152,7 @@ None recorded — no `Metadata.Context`, inline comments, or companion docs foun
 ## Recommendation
 This stack has no embedded context. Before modifying it:
 1. Review git history or design docs for original intent
-2. Run the persist-stack-context SOP to annotate the template
+2. Run the persist-template-context SOP to annotate the template
 3. Deploy the annotated template via change set (Metadata-only changes are safe)
 ```
 

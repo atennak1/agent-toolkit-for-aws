@@ -1,4 +1,4 @@
-# Persist Stack Context
+# Persist Template Context
 
 ## Overview
 
@@ -146,4 +146,4 @@ Metadata is included in the template body. If the template exceeds 51KB (inline 
 
 ### Existing stack has no context
 
-Use the retrieve-stack-context SOP to check what's there, then update the template with context and deploy via change set.
+Use the retrieve-template-context SOP to check what's there, then update the template with context and deploy via change set.

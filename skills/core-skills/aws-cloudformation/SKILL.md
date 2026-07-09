@@ -15,7 +15,7 @@ Domain expertise for the full CloudFormation lifecycle: authoring templates, val
 
 ### Author a new template or modify an existing one
 
-**For existing stacks:** Before making any changes, retrieve the embedded design context using the [retrieve-stack-context SOP](references/retrieve-stack-context.script.md). This ensures you understand the original constraints and rationale before modifying anything.
+**For existing stacks/templates:** Before making any changes, retrieve the embedded design context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This ensures you understand the original constraints and rationale before modifying anything.
 
 **Then** follow the [authoring best-practices SOP](references/author-cloudformation-best-practices.script.md) as a review checklist. When unsure about property names or types, use the [resource property lookup SOP](references/lookup-resource-properties.script.md) to verify against authoritative documentation rather than guessing.
 
@@ -26,28 +26,7 @@ Key defaults to apply unless there is a clear reason not to:
 - Avoid hardcoded physical resource names — use `!Sub "${AWS::StackName}-..."` for uniqueness
 - Never put secrets in plain `String` parameters
 
-**Context persistence (always applies).** Whenever you add or modify a resource, record the design intent — purpose, hard constraints, and change-safety — so it survives across sessions, teams, and tools.
-
-`Metadata.Context` is the default mechanism, and the right choice when the template has no decent existing context (all JSON templates, and YAML without meaningful comments). Record at minimum:
-
-- **`why`** — purpose, notable choices, and rejected alternatives.
-- **`must`** — hard constraints or invariants that would break something if violated (array).
-- **`mutable`** — the resource-level DEFAULT change-safety level: one of `must-never-change`, `change-with-constraints`, `review-required`, or `free-to-tune`. Set it on stateful or coupled resources, and add a sparse `mutability` override map only for the individual properties that differ from that default.
-
-Write `Metadata.Context` values in caveman shorthand (telegraphic phrasing and symbols like `>=`, `->`, `x`), and never restate the resource Type, logical id, or property values. Decision rule: if violating it would break something it is a `must`, otherwise it is a `why`.
-
-**Match the project's existing documentation convention.** Prefer whatever convention the template or its project already uses over introducing `Metadata.Context`:
-
-- **Inline comments** — if a YAML template documents intent well through natural inline comments, extend that comment style.
-- **Companion docs** — if the repo, package, or workspace keeps design context in companion documentation (a README, a `docs/` folder, architecture notes, or ADRs), record new or changed context there in that convention, and add a template-level `ref` pointer to the file(s) so future readers and agents can find it.
-
-Keep the author's voice and do not mix systems on one template. Whichever convention you follow, keep safety-critical `must` constraints discoverable (near the resource or clearly referenced) — never externalize the irreducible core. Reserve `Metadata.Context` for templates and projects that lack a decent existing convention.
-
-When modifying an existing stack, first retrieve its embedded context, respect any `must` constraints, and check `mutable` before changing a property (honor `must-never-change`, `change-with-constraints`, and `review-required`). Persist is idempotent: re-running it updates or merges existing context rather than duplicating or overwriting.
-
-When the template you are modifying is already large, also check its body size against the CloudFormation limit before adding resources — see [Template Size Limits](#template-size-limits).
-
-**Always embed context**: After authoring, run the [persist-stack-context SOP](references/persist-stack-context.script.md) to record intent in Description and Metadata
+**Context persistence (always applies).** Whenever you add or modify a resource, follow the [persist-template-context SOP](references/persist-template-context.script.md) to record the design intent — purpose, hard constraints, and change-safety — so it survives across sessions, teams, and tools.
 
 ### Validate a template before deployment
 
@@ -73,7 +52,7 @@ Key points:
 
 ### Troubleshoot a failed deployment
 
-**First:** Retrieve embedded context via the [retrieve-stack-context SOP](references/retrieve-stack-context.script.md) to understand the original design intent before diagnosing issues.
+**First:** Retrieve embedded context via the [retrieve-template-context SOP](references/retrieve-template-context.script.md) to understand the original design intent before diagnosing issues.
 
 When a stack is in a failed state (`CREATE_FAILED`, `ROLLBACK_COMPLETE`, `UPDATE_ROLLBACK_FAILED`, etc.), follow the [troubleshoot-deployment SOP](references/troubleshoot-deployment.script.md).
 
@@ -87,9 +66,9 @@ Key points:
 
 ### Understand or document stack intent
 
-When working with an existing stack, ALWAYS start by retrieving its embedded context using the [retrieve-stack-context SOP](references/retrieve-stack-context.script.md). This recovers the original design rationale without requiring access to the original conversation or design docs.
+When working with an existing stack, ALWAYS start by retrieving its embedded context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This recovers the original design rationale without requiring access to the original conversation or design docs.
 
-When creating or modifying a template, ALWAYS embed context using the [persist-stack-context SOP](references/persist-stack-context.script.md). This ensures future sessions can understand WHY the stack is designed the way it is.
+When creating or modifying a template, ALWAYS embed context using the [persist-template-context SOP](references/persist-template-context.script.md). This ensures future sessions can understand WHY the stack is designed the way it is.
 
 Key principle: **The template is the documentation.** Description and Metadata.Context fields survive across sessions, teams, and tools — unlike chat history or external docs that get lost.
 
@@ -102,8 +81,8 @@ Key principle: **The template is the documentation.** Description and Metadata.C
 | Deploy faster during development | Deploy-with-express-mode SOP |
 | Stack failed or is stuck | Troubleshoot-deployment SOP |
 | Unsure about a resource property | Resource property lookup SOP |
-| Understand why a stack exists | Retrieve-stack-context SOP |
-| Document design decisions in a template | Persist-stack-context SOP |
+| Understand why a stack exists | Retrieve-template-context SOP |
+| Document design decisions in a template | Persist-template-context SOP |
 
 ### CloudFormation vs CDK
 
