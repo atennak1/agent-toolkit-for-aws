@@ -1,9 +1,9 @@
 # Retrieve Template Context
 
 ## Overview
-Procedure for recovering architectural intent and design rationale from an existing CloudFormation stack. Reads the template `Description` and any embedded design context — recorded as `Metadata.Context` blocks, as natural inline comments (YAML), or in companion documentation in the same repo, package, or workspace — to reconstruct WHY the stack was built the way it was, enabling informed modifications without re-discovering original design decisions. `Metadata.Context` is a structured block; comment- and doc-based context is free-form and read on its own terms.
+Procedure for recovering architectural intent and design rationale from an existing CloudFormation template (a local file, or a deployed stack). Reads the template `Description` and any embedded design context — recorded as `Metadata.Context` blocks, as natural inline comments (YAML), or in companion documentation in the same repo, package, or workspace — to reconstruct WHY the stack was built the way it was, enabling informed modifications without re-discovering original design decisions. `Metadata.Context` is a structured block; comment- and doc-based context is free-form and read on its own terms.
 
-Use this SOP BEFORE modifying any existing stack to understand the original intent and constraints.
+Use this SOP BEFORE modifying an existing template — whether you are editing a local file or changing a deployed stack — to understand the original intent and constraints.
 
 > **StackSets:** This procedure works identically on StackSet-managed stack instances. You can also call `describe-stack-set` to retrieve the template and StackSet-level description directly.
 
@@ -153,7 +153,7 @@ None recorded — no `Metadata.Context`, inline comments, or companion docs foun
 This stack has no embedded context. Before modifying it:
 1. Review git history or design docs for original intent
 2. Run the persist-template-context SOP to annotate the template
-3. Deploy the annotated template via change set (Metadata-only changes are safe)
+3. If/when you deploy, apply the annotated template via change set (Metadata-only changes are safe)
 ```
 
 ## Troubleshooting

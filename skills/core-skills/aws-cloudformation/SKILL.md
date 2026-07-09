@@ -15,7 +15,7 @@ Domain expertise for the full CloudFormation lifecycle: authoring templates, val
 
 ### Author a new template or modify an existing one
 
-**For existing stacks/templates:** Before making any changes, retrieve the embedded design context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This ensures you understand the original constraints and rationale before modifying anything.
+**For an existing template (a local file or a deployed stack):** Before making any changes, retrieve the embedded design context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This ensures you understand the original constraints and rationale before modifying anything.
 
 **Then** follow the [authoring best-practices SOP](references/author-cloudformation-best-practices.script.md) as a review checklist. When unsure about property names or types, use the [resource property lookup SOP](references/lookup-resource-properties.script.md) to verify against authoritative documentation rather than guessing.
 
@@ -66,7 +66,7 @@ Key points:
 
 ### Understand or document stack intent
 
-When working with an existing stack, ALWAYS start by retrieving its embedded context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This recovers the original design rationale without requiring access to the original conversation or design docs.
+When working with an existing template, ALWAYS start by retrieving its embedded context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This recovers the original design rationale without requiring access to the original conversation or design docs.
 
 When creating or modifying a template, ALWAYS embed context using the [persist-template-context SOP](references/persist-template-context.script.md). This ensures future sessions can understand WHY the stack is designed the way it is.
 

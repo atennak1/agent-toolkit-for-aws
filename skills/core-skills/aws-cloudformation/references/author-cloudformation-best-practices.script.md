@@ -33,7 +33,7 @@ No external tools required. This SOP is purely analytical.
 
 **Constraints:**
 
-- If the template is for an EXISTING deployed stack, You MUST follow the [retrieve-template-context SOP](retrieve-template-context.script.md) to recover the embedded design rationale before making changes
+- If you are modifying an EXISTING template (a local file or a deployed stack), You MUST follow the [retrieve-template-context SOP](retrieve-template-context.script.md) to recover the embedded design rationale before making changes
 - You MUST review the `Description` field and all `Metadata.Context` entries to understand why resources are configured the way they are
 - You MUST NOT modify a resource's configuration without first checking its `Metadata.Context.must` constraints — changes that violate documented `must` entries require explicit user approval
 - You MUST check `Metadata.Context.mutable` before changing any property: honor `must-never-change` (never change), `change-with-constraints` (preserve the associated `must` rule), and `review-required` (needs review)
