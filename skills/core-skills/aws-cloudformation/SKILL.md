@@ -13,6 +13,16 @@ Domain expertise for the full CloudFormation lifecycle: authoring templates, val
 
 ## Common Tasks
 
+### Understand, explain, or document a template
+
+To answer exploratory questions about an existing template or stack — "what does this do?", "why is it built this way?", "walk me through this" — use the [retrieve-template-context SOP](references/retrieve-template-context.script.md) to read its embedded context (Description, `Metadata.Context`, inline comments, and any companion docs) and summarize its intent, architecture, and constraints. This is a read-only use; no changes are implied.
+
+When you are about to modify an existing template, start with the same retrieve step so you respect the original constraints and rationale before changing anything.
+
+When creating or modifying a template, embed context using the [persist-template-context SOP](references/persist-template-context.script.md). This ensures future sessions can understand WHY the stack is designed the way it is.
+
+Key principle: **The template is the documentation.** Description, `Metadata.Context`, and inline comments survive across sessions, teams, and tools — unlike chat history or external docs that get lost.
+
 ### Author a new template or modify an existing one
 
 **For an existing template (a local file or a deployed stack):** Before making any changes, retrieve the embedded design context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This ensures you understand the original constraints and rationale before modifying anything.
@@ -63,16 +73,6 @@ Key points:
 - When multiple resources have their own specific errors, they are parallel failures from a shared root cause (e.g., an IAM role missing permissions for multiple services). Enumerate ALL the specific permission gaps, not just the first one, so the developer can fix everything in one pass.
 - Cancelled resources may have their own issues that only surface on the next deployment attempt. Warn the developer that additional failures may appear after fixing the visible ones.
 - Classify the fix as **template-level** (change the template) or **environment-level** (fix IAM, quotas, resource state) — do not propose template changes for environment issues
-
-### Understand, explain, or document a template
-
-To answer exploratory questions about an existing template or stack — "what does this do?", "why is it built this way?", "walk me through this" — use the [retrieve-template-context SOP](references/retrieve-template-context.script.md) to read its embedded context (Description, `Metadata.Context`, inline comments, and any companion docs) and summarize its intent, architecture, and constraints. This is a read-only use; no changes are implied.
-
-When you are about to modify an existing template, start with the same retrieve step so you respect the original constraints and rationale before changing anything.
-
-When creating or modifying a template, embed context using the [persist-template-context SOP](references/persist-template-context.script.md). This ensures future sessions can understand WHY the stack is designed the way it is.
-
-Key principle: **The template is the documentation.** Description, `Metadata.Context`, and inline comments survive across sessions, teams, and tools — unlike chat history or external docs that get lost.
 
 ## Decision Guide
 
