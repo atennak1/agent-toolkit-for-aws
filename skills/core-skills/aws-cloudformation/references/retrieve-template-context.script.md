@@ -8,8 +8,9 @@ Use this SOP BEFORE modifying an existing template — whether you are editing a
 > **StackSets:** This procedure works identically on StackSet-managed stack instances. You can also call `describe-stack-set` to retrieve the template and StackSet-level description directly.
 
 ## Parameters
-- **stack_name** (required): The CloudFormation stack name or ARN.
-- **region** (required): AWS region where the stack is deployed.
+- **template_path** (preferred): Path to the template in the workspace. Provide this when reading context from a local template file — the default path, which needs no AWS access.
+- **stack_name** (deployed-stack fallback only): The CloudFormation stack name or ARN. Required ONLY when the template is not in the workspace and must be retrieved from a deployed stack.
+- **region** (deployed-stack fallback only): AWS region where the stack is deployed. Required ONLY together with `stack_name`.
 - **resource_filter** (optional): Specific logical resource IDs to inspect. If omitted, inspects all resources.
 
 ## Steps
