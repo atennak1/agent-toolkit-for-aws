@@ -159,8 +159,8 @@ This stack has no embedded context. Before modifying it:
 ### get-template returns processed template instead of original
 Use `--template-stage Original` to get the template as authored (with Metadata intact). The `Processed` stage may have transforms applied that alter structure.
 
-### Resource Metadata is empty but template has Metadata
-This can happen if the stack was created with an older template version. The live metadata matches what was last deployed — check git history for the current template source.
+### A deployed stack is missing context you expected
+When you retrieve the template from a deployed stack (the `get-template` fallback), it returns the template as it was at the LAST deployment — not the latest source. If a resource comes back with no `Metadata.Context` even though you expected it, the context was likely added to the source template after the stack was last deployed: it exists in the repo but has not been applied yet. Read the current source template (the workspace file or git history) as the source of truth, and deploy to bring the live stack up to date if and when needed.
 
 ### Stack is in ROLLBACK_COMPLETE state
 You can still retrieve the template and metadata from failed stacks. The context is preserved even if deployment failed.
