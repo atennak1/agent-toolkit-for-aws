@@ -33,7 +33,7 @@ Constraints:
 Constraints:
 - Work from the template body obtained in Step 2 (no additional service call).
 - Stack purpose comes from the native template `Description` (Step 2), never from a template-level `Metadata.Context` block.
-- If a template-level `Metadata.Context` block is present, extract and present its cross-cutting fields: `arch` (system shape), `must` (cross-cutting constraints), `ref` (pointers to external context files), `own` (owner/contact). Templates state broadly-applicable context here ONCE (DRY) instead of repeating it per resource.
+- If a template-level `Metadata.Context` block is present, extract and present its cross-cutting fields: `arch` (system shape), `must` (cross-cutting constraints), `ref` (pointers to external context files), `owner` (contact). Templates state broadly-applicable context here ONCE (DRY) instead of repeating it per resource.
 - The template-level block is optional, so its absence is normal, not an error. It never carries `v` or `sys`; if an older template still has those, ignore them (use `Description` for purpose) and surface anything else readable.
 
 ### 4. Extract Embedded Resource Context
