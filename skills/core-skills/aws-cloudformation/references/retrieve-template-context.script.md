@@ -64,7 +64,7 @@ Constraints:
   - `DetectStackDrift` / `DescribeStackDriftDetectionStatus` — current drift status
   - CloudTrail — actor enrichment (who initiated the API call)
   - Change sets / template-version diffs — property-level changes between versions
-- You SHOULD retrieve service-derived context when assessing the risk of a change, understanding recent modifications, or auditing drift. For diagnosing a FAILED deployment, do not reproduce that analysis here — use the [troubleshoot-deployment SOP](troubleshoot-deployment.script.md), which owns the deterministic failed-events + CloudTrail root-cause workflow.
+- You MAY retrieve service-derived context when assessing the risk of a change, understanding recent modifications, or auditing drift. For diagnosing a FAILED deployment, do not reproduce that analysis here — use the [troubleshoot-deployment SOP](troubleshoot-deployment.script.md), which owns the deterministic failed-events + CloudTrail root-cause workflow.
 
 ### 5. Follow Cross-Stack References
 
@@ -130,6 +130,13 @@ SQS buffer -> Lambda -> DynamoDB; DLQ for poison msgs
 - OrderQueue.QueueName: must-never-change ⚠️
 - ProcessorFunction.mutable: change-with-constraints
 - ProcessorFunction.MemorySize: review-required
+
+## Dependencies
+**Managed:**
+- VpcId <- ImportValue `network-prod:VpcId` (strong ref; producer stack network-prod)
+- AlertTopicArn <- GetStackOutput StackName=ops-notifications OutputName=AlertTopicArn (weak ref, cross-Region us-west-2) ⚠️
+**Unmanaged:**
+- ProcessorRole: hardcoded arn:aws:iam::111111111111:policy/OrgBaseline (managed outside this stack) ⚠️
 
 ## Resources Without Context
 - OrderDLQ (no Metadata.Context)
