@@ -1,7 +1,7 @@
 # Retrieve Stack Context
 
 ## Overview
-Procedure for recovering architectural intent and design rationale from an existing CloudFormation stack. Reads the template `Description` and any embedded design context — recorded as `Metadata.Context` blocks, as natural inline comments (YAML), or in companion documentation the template points to via a template-level `ref` — to reconstruct WHY the stack was built the way it was, enabling informed modifications without re-discovering original design decisions. `Metadata.Context` conforms to the v1 schema (`doc/metadata-context-schema.md`); comment- and doc-based context is free-form and read on its own terms.
+Procedure for recovering architectural intent and design rationale from an existing CloudFormation stack. Reads the template `Description` and any embedded design context — recorded as `Metadata.Context` blocks, as natural inline comments (YAML), or in companion documentation the template points to via a template-level `ref` — to reconstruct WHY the stack was built the way it was, enabling informed modifications without re-discovering original design decisions. `Metadata.Context` is a structured block; comment- and doc-based context is free-form and read on its own terms.
 
 Use this SOP BEFORE modifying any existing stack to understand the original intent and constraints.
 

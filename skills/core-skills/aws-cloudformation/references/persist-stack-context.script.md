@@ -2,7 +2,7 @@
 
 ## Overview
 
-Procedure for embedding architectural intent and design rationale into CloudFormation templates so that future sessions (human or AI) can understand WHY the stack exists and WHY each resource is configured the way it is. This SOP implements the Metadata.Context v1 schema defined in `doc/metadata-context-schema.md`. That document is the canonical field reference; this SOP provides the procedure for writing context that conforms to it.
+Procedure for embedding architectural intent and design rationale into CloudFormation templates so that future sessions (human or AI) can understand WHY the stack exists and WHY each resource is configured the way it is.
 
 Uses the `Metadata.Context` schema:
 
