@@ -16,7 +16,12 @@ Uses the `Metadata.Context` schema:
 
 **Tiers:** Always emit T1 (`why` + `must` on significant resources; Description for stack purpose). Add T2 (`mutable`, `arch` in `why`) if budget allows. Add T3 (`trust`, `ops`, `gaps`, `deps`) when warranted. If the template nears 1 MB, shed in order: `trust` → `ops` → `gaps` → `deps` → `mutable` on non-critical → trim `why` to significant resources → last resort externalize via `ref`. NEVER drop `must` on coupled/security/stateful resources.
 
-**Match existing natural context.** `Metadata.Context` is the default mechanism and the right choice when the template has no decent existing context — this includes all JSON templates (JSON has no comments) and YAML templates without meaningful comments. If a YAML template already documents intent well through natural inline comments, follow that existing convention instead of injecting `Metadata.Context`: extend the author's comments in their own style and voice, and capture hard constraints (`must`) as comments too. Do NOT mix both systems on one template — match what is already there. When existing comments are sparse or absent, use `Metadata.Context`.
+**Match the existing documentation convention.** `Metadata.Context` is the default mechanism and the right choice when neither the template nor its project already has a decent context convention — this includes all JSON templates (JSON has no comments) and YAML templates without meaningful comments. Before injecting `Metadata.Context`, check what convention is already in use and follow it:
+
+- **Natural inline comments** — if a YAML template documents intent well through inline comments, extend the author's comments in their own style and voice.
+- **Companion documentation** — if the repo, package, or workspace records design context in companion docs (README, a `docs/` folder, architecture notes, ADRs), add or update the new/changed context there following that convention, and add a template-level `ref` entry pointing to the file(s) so the link is discoverable from the template.
+
+Do NOT mix systems on one template — match what is already there. Whichever you use, keep safety-critical `must` constraints discoverable and never externalize the irreducible core. When there is no existing convention, use `Metadata.Context`.
 
 ## Parameters
 
@@ -49,7 +54,7 @@ Constraints:
 
 Constraints:
 
-- FIRST apply the **Match existing natural context** rule above: if this template is YAML and already documents intent well through natural inline comments, record the new or changed resource's intent as comments in that same style and SKIP the `Metadata.Context` block for it. Use the `Metadata.Context` steps below when the template is JSON, or when its comments are sparse or absent.
+- FIRST apply the **Match the existing documentation convention** rule above: if this template or its project already documents intent well (YAML inline comments, or companion docs in the repo/package/workspace), record the new or changed resource's intent in that same convention and SKIP the `Metadata.Context` block for it — when the context lives in companion docs, add a template-level `ref` pointing to the file(s). Use the `Metadata.Context` steps below when the template is JSON, or when no existing convention is present.
 - For EACH significant resource (stateful, security, coupled, or non-obvious), you MUST ENSURE a `Metadata.Context` key exists. If one already exists, UPDATE it — preserve existing `must` constraints and `mutable` flags that remain valid; do not duplicate array entries. Only ADD new fields or CORRECT stale ones.
 - The `Context` key MUST contain at minimum (T1):
   - `why`: Purpose + notable config choices + rejected alternatives. The SINGLE explanatory field. Non-binding. Never restate Type, logical id, property values, or Description.

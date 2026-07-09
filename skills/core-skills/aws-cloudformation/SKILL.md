@@ -36,7 +36,12 @@ Key defaults to apply unless there is a clear reason not to:
 
 Write `Metadata.Context` values in caveman shorthand (telegraphic phrasing and symbols like `>=`, `->`, `x`), and never restate the resource Type, logical id, or property values. Decision rule: if violating it would break something it is a `must`, otherwise it is a `why`.
 
-**Follow an existing comment convention when one exists.** If a YAML template already documents intent well through natural inline comments, extend that comment style rather than introducing `Metadata.Context` blocks — keep the author's voice, do not mix two documentation systems on one template, and still capture the hard constraints in those comments. Reserve `Metadata.Context` for templates that lack decent natural context.
+**Match the project's existing documentation convention.** Prefer whatever convention the template or its project already uses over introducing `Metadata.Context`:
+
+- **Inline comments** — if a YAML template documents intent well through natural inline comments, extend that comment style.
+- **Companion docs** — if the repo, package, or workspace keeps design context in companion documentation (a README, a `docs/` folder, architecture notes, or ADRs), record new or changed context there in that convention, and add a template-level `ref` pointer to the file(s) so future readers and agents can find it.
+
+Keep the author's voice and do not mix systems on one template. Whichever convention you follow, keep safety-critical `must` constraints discoverable (near the resource or clearly referenced) — never externalize the irreducible core. Reserve `Metadata.Context` for templates and projects that lack a decent existing convention.
 
 When modifying an existing stack, first retrieve its embedded context, respect any `must` constraints, and check `mutable` before changing a property (honor `must-never-change`, `change-with-constraints`, and `review-required`). Persist is idempotent: re-running it updates or merges existing context rather than duplicating or overwriting.
 
