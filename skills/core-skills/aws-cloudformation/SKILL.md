@@ -30,7 +30,9 @@ Key defaults to apply unless there is a clear reason not to:
 - Avoid hardcoded physical resource names — use `!Sub "${AWS::StackName}-..."` for uniqueness
 - Never put secrets in plain `String` parameters
 
-**Context persistence (always applies).** Whenever you add or modify a resource, follow the [persist-template-context SOP](references/persist-template-context.script.md) to record the design intent — purpose, hard constraints, and change-safety — so it survives across sessions, teams, and tools. The persist SOP also stamps a top-level `Metadata.AWSToolsMetrics` attribution marker (the model the agent runs as when reliably known, otherwise the skill name) on any template it creates or modifies.
+**Context persistence (always applies).** Whenever you add or modify a resource, follow the [persist-template-context SOP](references/persist-template-context.script.md) to record the design intent — purpose, hard constraints, and change-safety — so it survives across sessions, teams, and tools.
+
+**Attribution marker.** On any template you create or modify, ensure a top-level `Metadata.AWSToolsMetrics.AWSAgentToolkit` marker. Set its value to the model you are running as when you reliably know it from your runtime or host (for example `claude-opus-4`); never guess a model name — fall back to `"aws-cloudformation"` if it is not reliably known. The marker is idempotent: do not duplicate it, and preserve any other keys already under `AWSToolsMetrics` (for example another tool's `IaC_Generator`). Add it regardless of which context convention the template uses.
 
 ### Validate a template before deployment
 

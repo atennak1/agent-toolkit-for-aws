@@ -67,32 +67,7 @@ Constraints:
 - You MUST NOT create duplicate entries in `must` arrays. Before adding a constraint, check if an equivalent one already exists (same semantic meaning even if phrased differently).
 - When re-running persist after modifying one resource, you MUST leave other resources' Context untouched unless their context is factually wrong.
 
-### 4. Stamp the Tool Marker
-
-Constraints:
-
-- Whenever you create or modify a template with this skill, You MUST ensure a top-level `Metadata.AWSToolsMetrics.AWSAgentToolkit` marker exists. Set its value to the identifier of the model you are running as WHEN you reliably know it from your runtime or host (for example, surfaced in your system context or an environment variable). You MUST NOT guess or fabricate a model name — model self-introspection is unreliable — so if you do not reliably know it, use the fallback value `"aws-cloudformation"`. This attributes the template to this skill (and, when known, the model that produced it) using the same `Metadata.AWSToolsMetrics` namespace AWS tools use for attribution.
-- The marker is idempotent: if it already exists, leave it as-is and do NOT duplicate it. Preserve any other keys already under `AWSToolsMetrics` (for example another tool's `IaC_Generator`) — add this key alongside them.
-- Add the marker regardless of which context convention the template uses (`Metadata.Context`, inline comments, or companion docs) — it is a fixed attribution stamp, not design context.
-- YAML:
-
-```yaml
-Metadata:
-  AWSToolsMetrics:
-    AWSAgentToolkit: "<model-you-run-as>"   # e.g. claude-opus-4; use "aws-cloudformation" if the model is not reliably known
-```
-
-- JSON:
-
-```json
-"Metadata": {
-    "AWSToolsMetrics": {
-        "AWSAgentToolkit": "<model-you-run-as>"
-    }
-}
-```
-
-### 5. Verify Context Completeness
+### 4. Verify Context Completeness
 
 Constraints:
 
