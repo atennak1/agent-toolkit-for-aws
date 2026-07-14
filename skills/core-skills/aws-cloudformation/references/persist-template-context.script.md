@@ -4,7 +4,7 @@
 
 Procedure for embedding architectural intent and design rationale into CloudFormation templates so that future sessions (human or AI) can understand WHY the stack exists and WHY each resource is configured the way it is.
 
-Uses the `Metadata.Context` schema:
+Uses the `Metadata.Context` schema when no other convention exists:
 
 - **Template Description** (1,024 bytes max): One-sentence summary of the stack's purpose and key design decision — the native CloudFormation Description field captures stack purpose.
 - **Template-level Metadata.Context** (optional): Cross-cutting context that applies broadly, stated ONCE (DRY) rather than repeated per resource — `arch` (system shape), `must` (cross-cutting constraints, array), `ref` (pointers to external context files, template level only), `owner` (contact). This block MUST NOT include `v` (versioning is global/implicit) or `sys` (stack purpose lives in the native Description).
@@ -22,13 +22,6 @@ Uses the `Metadata.Context` schema:
 - **Companion documentation** — if the repo, package, or workspace records design context in companion docs (README, a `docs/` folder, architecture notes, or architecture decision records (ADRs)), add or update the new/changed context there following that convention, and add a template-level `ref` entry pointing to the file(s) so the link is discoverable from the template.
 
 Do NOT mix systems on one template — match what is already there. Whichever you use, keep safety-critical `must` constraints discoverable and never externalize the irreducible core. When there is no existing convention, use `Metadata.Context`.
-
-## Parameters
-
-| Name | Required | Description |
-|------|----------|-------------|
-| `template_content` | Yes | The CloudFormation template to annotate. |
-| `context_source` | Yes | The conversation, ticket, or design doc that explains the intent. |
 
 ## Steps
 
@@ -70,7 +63,7 @@ Constraints:
 - You SHOULD omit `Context` on trivial resources where the Type and logical name make the purpose obvious (e.g., a WaitConditionHandle).
 - You MUST NOT put secrets, PII, or credentials in Metadata — it is stored unencrypted and returned via API.
 - You MUST NOT use the `AWS::CloudFormation::Init` key for context — that key is reserved for cfn-init.
-- You MUST use caveman shorthand: telegraphic values, symbols (`>=`, `->`, `x`, `&`), abbreviations (`fn`, `msg`, `dup`, `cfg`).
+- You SHOULD use caveman shorthand: telegraphic values, symbols (`>=`, `->`, `x`, `&`), abbreviations (`fn`, `msg`, `dup`, `cfg`).
 - You MUST NOT create duplicate entries in `must` arrays. Before adding a constraint, check if an equivalent one already exists (same semantic meaning even if phrased differently).
 - When re-running persist after modifying one resource, you MUST leave other resources' Context untouched unless their context is factually wrong.
 
