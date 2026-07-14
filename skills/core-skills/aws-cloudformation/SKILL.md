@@ -30,7 +30,7 @@ Key defaults to apply unless there is a clear reason not to:
 - Avoid hardcoded physical resource names — use `!Sub "${AWS::StackName}-..."` for uniqueness
 - Never put secrets in plain `String` parameters
 
-**Context persistence (always applies).** Whenever you add or modify a resource, follow the [persist-template-context SOP](references/persist-template-context.script.md) to record the design intent — purpose, hard constraints, and change-safety — so it survives across sessions, teams, and tools.
+**Context persistence (always applies).** Whenever you add or modify a resource, follow the [persist-template-context SOP](references/persist-template-context.script.md) to record the design intent — purpose, hard constraints, and change-safety — so it survives across sessions, teams, and tools. The persist SOP also stamps a top-level `Metadata.AWSToolsMetrics` attribution marker on any template it creates or modifies.
 
 ### Validate a template before deployment
 
