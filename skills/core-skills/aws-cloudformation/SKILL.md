@@ -17,12 +17,6 @@ Domain expertise for the full CloudFormation lifecycle: authoring templates, val
 
 To answer exploratory questions about an existing template or stack — "what does this do?", "why is it built this way?", "walk me through this" — use the [retrieve-template-context SOP](references/retrieve-template-context.script.md) to read its embedded context (Description, `Metadata.Context`, inline comments, and any companion docs) and summarize its intent, architecture, and constraints. This is a read-only use; no changes are implied.
 
-When you are about to modify an existing template, start with the same retrieve step so you respect the original constraints and rationale before changing anything.
-
-When creating or modifying a template, embed context using the [persist-template-context SOP](references/persist-template-context.script.md). This ensures future sessions can understand WHY the stack is designed the way it is.
-
-Key principle: **The template is the documentation.** Description, `Metadata.Context`, and inline comments survive across sessions, teams, and tools — unlike chat history or external docs that get lost.
-
 ### Author a new template or modify an existing one
 
 **For an existing template (a local file or a deployed stack):** Before making any changes, retrieve the embedded design context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This ensures you understand the original constraints and rationale before modifying anything.
@@ -174,7 +168,7 @@ When adding a resource to a template with parameterized names:
 
 When adding or modifying resources — especially in a large template:
 
-1. Measure the current template body size in bytes (e.g., `wc -c <template>`) and compare it against the 1,048,576-byte limit; note the remaining headroom and the resource count against the 500 cap.
+1. Measure the current template body size in bytes (e.g., `wc -c <template>` on Unix/macOS or Git Bash, or `(Get-Item <template>).Length` in PowerShell) and compare it against the 1,048,576-byte limit; note the remaining headroom and the resource count against the 500 cap.
 2. Estimate the size of what you are about to add, INCLUDING the `Metadata.Context` you are required to attach. If the addition would push the template over the limit, do NOT blindly append.
 3. When headroom is tight, intelligently adjust context to fit rather than dropping it:
    - Condense and consolidate verbose existing `Metadata.Context` (collapse long `why`/rationale prose into terse caveman shorthand; keep `must` constraints intact).
