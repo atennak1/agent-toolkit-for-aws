@@ -17,6 +17,8 @@ Domain expertise for the full CloudFormation lifecycle: authoring templates, val
 
 To answer exploratory questions about an existing template or stack — "what does this do?", "why is it built this way?", "walk me through this" — use the [retrieve-template-context SOP](references/retrieve-template-context.script.md) to read its embedded context (Description, `Metadata.Context`, inline comments, and any companion docs) and summarize its intent, architecture, and constraints. This is a read-only use; no changes are implied.
 
+If the template carries little or no embedded context, still answer by analyzing the template itself — infer purpose and behavior from resource types, properties, references, conditions, and structure. Do NOT require the user to backfill context first; you may offer to persist context as an optional follow-up, but exploration must never be blocked on it.
+
 ### Author a new template or modify an existing one
 
 **For an existing template (a local file or a deployed stack):** Before making any changes, retrieve the embedded design context using the [retrieve-template-context SOP](references/retrieve-template-context.script.md). This ensures you understand the original constraints and rationale before modifying anything.

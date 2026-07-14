@@ -5,7 +5,7 @@ Procedure for recovering architectural intent and design rationale from an exist
 
 Use this SOP BEFORE modifying an existing template — whether you are editing a local file or changing a deployed stack — to understand the original intent and constraints. Also use it for exploratory, read-only questions about a template or stack ("what does this do?", "why is it built this way?", "walk me through this") — recover and summarize the embedded context, with no modification implied.
 
-> **StackSets:** This procedure works identically on StackSet-managed stack instances. You can also call `describe-stack-set` to retrieve the template and StackSet-level description directly.
+> **StackSets:** This procedure works similarly on StackSet-managed stack instances. You can also call `describe-stack-set` to retrieve the template and StackSet-level description directly.
 
 ## Parameters
 - **template_path** (preferred): Path to the template in the workspace. Provide this when reading context from a local template file — the default path, which needs no AWS access.
@@ -98,7 +98,8 @@ Constraints:
   8. **Resources Without Context** (logical IDs with no context in any convention — no `Metadata.Context`, no inline comments, and not covered by companion docs)
 - You MUST warn the user about any resources lacking context — these are blind spots for modification
 - You MUST prominently flag all `must` constraints — these prevent the agent from silently breaking the system
-- You SHOULD recommend running the persist-template-context SOP to fill gaps before making changes
+- Before MODIFYING a template whose context is sparse, You SHOULD recommend running the persist-template-context SOP to fill gaps.
+- For read-only or exploratory requests, You MUST NOT gate your answer on backfilling context. When context is sparse or absent, infer intent and behavior from the template itself (resource types, properties, references, conditions, structure) and answer directly; offer to persist context only as an optional follow-up.
 
 ## Examples
 
@@ -155,7 +156,9 @@ No Description set.
 None recorded — no `Metadata.Context`, inline comments, or companion docs found.
 
 ## Recommendation
-This stack has no embedded context. Before modifying it:
+This template has no embedded context. For an exploratory question, still answer it by analyzing the template directly — infer purpose and behavior from resource types, properties, references, and structure. Do not require the user to add context first.
+
+If you are going to modify it:
 1. Review git history or design docs for original intent
 2. Run the persist-template-context SOP to annotate the template
 3. If/when you deploy, apply the annotated template via change set (Metadata-only changes are safe)
