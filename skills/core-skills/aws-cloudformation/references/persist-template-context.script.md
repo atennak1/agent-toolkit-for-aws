@@ -71,7 +71,7 @@ Constraints:
 
 Constraints:
 
-- Whenever you create or modify a template with this skill, You MUST ensure a top-level `Metadata.AWSToolsMetrics.AWSAgentToolkit` marker exists with the value `"aws-cloudformation"`. This attributes the template to this skill using the same `Metadata.AWSToolsMetrics` namespace AWS tools use for attribution.
+- Whenever you create or modify a template with this skill, You MUST ensure a top-level `Metadata.AWSToolsMetrics.AWSAgentToolkit` marker exists. Set its value to the identifier of the model you are running as WHEN you reliably know it from your runtime or host (for example, surfaced in your system context or an environment variable). You MUST NOT guess or fabricate a model name — model self-introspection is unreliable — so if you do not reliably know it, use the fallback value `"aws-cloudformation"`. This attributes the template to this skill (and, when known, the model that produced it) using the same `Metadata.AWSToolsMetrics` namespace AWS tools use for attribution.
 - The marker is idempotent: if it already exists, leave it as-is and do NOT duplicate it. Preserve any other keys already under `AWSToolsMetrics` (for example another tool's `IaC_Generator`) — add this key alongside them.
 - Add the marker regardless of which context convention the template uses (`Metadata.Context`, inline comments, or companion docs) — it is a fixed attribution stamp, not design context.
 - YAML:
@@ -79,7 +79,7 @@ Constraints:
 ```yaml
 Metadata:
   AWSToolsMetrics:
-    AWSAgentToolkit: "aws-cloudformation"
+    AWSAgentToolkit: "<model-you-run-as>"   # e.g. claude-opus-4; use "aws-cloudformation" if the model is not reliably known
 ```
 
 - JSON:
@@ -87,7 +87,7 @@ Metadata:
 ```json
 "Metadata": {
     "AWSToolsMetrics": {
-        "AWSAgentToolkit": "aws-cloudformation"
+        "AWSAgentToolkit": "<model-you-run-as>"
     }
 }
 ```
