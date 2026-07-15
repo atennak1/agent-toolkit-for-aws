@@ -34,7 +34,7 @@ Constraints:
 - Work from the template body obtained in Step 2 (no additional service call).
 - Stack purpose comes from the native template `Description` (Step 2), never from a template-level `Metadata.Context` block.
 - If a template-level `Metadata.Context` block is present, extract and present its cross-cutting fields: `arch` (system shape), `must` (cross-cutting constraints), `ref` (pointers to external context files), `owner` (contact). Templates state broadly-applicable context here ONCE (DRY) instead of repeating it per resource.
-- The template-level block is optional, so its absence is normal, not an error. It never carries `v` or `sys`; if an older template still has those, ignore them (use `Description` for purpose) and surface anything else readable.
+- The template-level block is optional, so its absence is normal, not an error. Stack purpose comes from the `Description`; surface whatever cross-cutting fields are present and readable.
 
 ### 4. Extract Embedded Resource Context
 
@@ -88,7 +88,7 @@ Constraints:
 ### 6. Synthesize Context Summary
 Constraints:
 - You MAY present a structured summary:
-  1. **Stack Purpose** (from `Description`; fall back to an obsolete `sys` field only if an older template still carries one)
+  1. **Stack Purpose** (from `Description`)
   2. **Architecture** (from the template-level `arch` if present, otherwise resource-level context or `Description`)
   3. **Cross-Cutting Constraints** (from the template-level `must`, if present)
   4. **Resource Rationale** (aggregated `why` from resource-level Context)
