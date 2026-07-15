@@ -161,7 +161,7 @@ This template has no embedded context. For an exploratory question, still answer
 If you are going to modify it:
 1. Review git history or design docs for original intent
 2. Run the persist-template-context SOP to annotate the template
-3. If/when you deploy, apply the annotated template via change set (Metadata-only changes are safe)
+3. If/when you deploy, apply the annotated template via change set. Resource-level `Metadata.Context` changes are detected and deploy on their own; a change that touches ONLY the template-level `Metadata` section is rejected as "no changes" and must be bundled with a resource-level change.
 ```
 
 ## Troubleshooting
